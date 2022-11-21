@@ -3,12 +3,13 @@
 #                                                         :::      ::::::::    #
 #    makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: znichola <znichola@student.42lausanne.c    +#+  +:+       +#+         #
+#    By: znichola <znichola@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/11/21 14:49:07 by znichola          #+#    #+#              #
-#    Updated: 2022/11/21 14:49:07 by znichola         ###   ########.fr        #
+#    Created: 2022/11/21 20:15:48 by znichola          #+#    #+#              #
+#    Updated: 2022/11/21 20:15:48 by znichola         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 NAME = server
 
