@@ -31,6 +31,8 @@
 #  define SIGUSR2 2
 # endif
 
+# define MSGSIZE 32
+
 // ◦ ft_printf and any equivalent YOU coded
 // ◦ signal
 // ◦ sigemptyset

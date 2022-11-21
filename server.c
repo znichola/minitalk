@@ -15,9 +15,22 @@
 
 char	*message;
 
+int	add_message(int index, int c)
+{
+	if (index != MSGSIZE && index % MSGSIZE == 0)
+	{
+		free(message);
+		message = (char *)malloc((index / MSGSIZE + 1) * sizeof(char));
+		if (!message)
+			return (1);
+			printf("realloc-ed\n");
+	}
+	message[index] = c;
+}
+
 void	send_confirmation(int pid)
 {
-	printf("\nsending confirmation to:%d\n", pid);
+	printf("sending confirmation to:%d\n", pid);
 	kill(pid, SIGUSR1);
 }
 
@@ -36,11 +49,11 @@ void	get_byte(int sig)
 	if (count == 32)
 		pid = byte;
 	else
-		message[count / 32 -2] = byte;
+		add_message(count / 32 -2, byte);
 	if (byte == 0)
 	{
 		ft_putstr_fd(message, 1);
-		write(1, "\n", 1);
+		// write(1, "\n", 1);
 		send_confirmation(pid);
 		count = 0;
 	}
@@ -62,7 +75,7 @@ int	main(int argc, char **argv)
 	int	count;
 
 	count = 0;
-	message = (char *)malloc((64 + 1) * sizeof(char));
+	message = (char *)malloc((MSGSIZE + 1) * sizeof(char));
 	if (!message)
 		return (1);
 	signal(SIGUSR1, handeler);
