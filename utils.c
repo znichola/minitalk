@@ -64,6 +64,18 @@ int	ft_atoi(const char *str)
 	return ((int)n * s);
 }
 
+char	*ft_strcpy(char *dest, char *src)
+{
+	char	*t;
+	
+	t = dest;
+	if (!dest || !src)
+		return (NULL);
+	while (*src)
+		*t++ = *src++;
+	return (dest);
+}
+
 	// printf("byte:%u count:%d", byte, count);
 	// printf("<");
 	// int i = byte;
