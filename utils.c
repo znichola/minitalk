@@ -18,12 +18,24 @@ void	ft_putchar_fd(char c, int fd)
 	write(fd, &c, 1);
 }
 
+size_t	ft_strlen(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	return (i);
+}
+
 void	ft_putstr_fd(char *s, int fd)
 {
+	size_t	i;
+
 	if (!*s || fd < 0)
 		return ;
-	while (*s)
-		write(fd, s++, 1);
+	i = ft_strlen(s);
+	write(fd, s, i);
 }
 
 void	ft_putnbr_fd(int n, int fd)
@@ -76,15 +88,19 @@ char	*ft_strcpy(char *dest, char *src)
 	return (dest);
 }
 
-	// printf("byte:%u count:%d", byte, count);
-	// printf("<");
-	// int i = byte;
-	// for (int j = 0; j < 32; j++) 
-	// {
-	// 	printf((i & (1U << 31) ? "1" : "0"));
-	// 	i = i << 1U;
-	// }
-	// printf(">\n");
+int	message_exit(int sig, int fd, char *msg)
+{
+	while (*msg)
+		write(fd, msg++, 1);
+	write(fd, &"\n", 1);
+	return (sig);
+}
 
-	// printf("%c\n", (sig ? '1' : '0'));
-	
+void	ft_quick_itoa(unsigned int n)
+{
+	unsigned char	c;
+	if (n > 9)
+		ft_quick_itoa(n / 10);
+	c = n % 10 + '0';
+	write(1, &c, 1);
+}

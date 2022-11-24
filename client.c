@@ -17,8 +17,6 @@ void	send_int(unsigned int i, int pid)
 {
 	int				count;
 
-	// char *str = "000000000000000000101111111101110";
-	// char *str = "00000000000000000011000001001111";
 	count = 32;
 	while (count--)
 	{
@@ -35,7 +33,7 @@ void	send_int(unsigned int i, int pid)
 			kill(pid, SIGUSR2);
 		}
 		i = i << 1U;
-		usleep(50);
+		usleep(20);
 	}
 	// printf("\n");
 }
@@ -57,10 +55,10 @@ void	send_message(int pid, char *message)
 		send_int(*message++, pid);
 	send_int(0, pid);
 }
-
+ 
 void	handeler(int sig)
 {
-	write(1, "confirmation rescived", 22);
+	write(1, "confirmation received", 22);
 	exit(0);
 }
 

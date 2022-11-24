@@ -18,7 +18,7 @@ COMOBJ = utils.o
 SRVOBJ = server.o
 CLTOBJ = client.o
 # CFLAGS = -Wall -Werror -Wextra
-CFLAGS = -g
+CFLAGS = -g -fsanitize=address
 
 all : $(SRVNM) $(CLTNM)
 

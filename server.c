@@ -13,29 +13,20 @@
 
 # include "minitalk.h"
 
-char	*message;
-
-int	add_message(int index, int c)
-{
-	char *tmp;
-
-	if (index != MSGSIZE && index % MSGSIZE == 0)
-	{
-		tmp = message;
-		message = (char *)malloc((index + MSGSIZE + 1) * sizeof(char));
-		if (!tmp)
-			return (1);
-		ft_strcpy(message, tmp);
-		printf("\nrealloc-ed, new size:%d\n", (index + MSGSIZE + 1) * sizeof(char));
-		free(tmp);
-	}
-	message[index] = c;
-}
+char	message[MSGBUFF];
 
 void	send_confirmation(int pid)
 {
-	printf("\nsending confirmation to:%d\n", pid);
+	write(1, "\nSTOP. sending confirmation:%d\n", 32);
+	ft_quick_itoa(pid);
+	printf("\npid:%d\n", pid);
 	kill(pid, SIGUSR1);
+}
+
+void write_reset(int len, unsigned int *count)
+{
+	write(1, message, len);
+	count = 0;
 }
 
 void	get_byte(int sig)
@@ -53,14 +44,11 @@ void	get_byte(int sig)
 	if (count == 32)
 		pid = byte;
 	else
-		add_message(count / 32 - 2, byte);
+		message[(count / 32 - 2)] = byte;
+	if ((count / 32 - 2) >= MSGBUFF || byte == 0)
+		write_reset((count / 32 - 2), &count);
 	if (byte == 0)
-	{
-		ft_putstr_fd(message, 1);
-		// write(1, "\n", 1);
 		send_confirmation(pid);
-		count = 0;
-	}
 	byte = 0;
 }
 
@@ -70,23 +58,38 @@ void handeler(int sig)
 		get_byte(1);
 	if (sig == SIGUSR2)
 		get_byte(2);
+	if (sig == SIGTERM)
+	{
+		ft_putstr_fd("TERMINATING - buffer flush[\n", 1);
+		ft_putstr_fd(message, 1);
+		ft_putstr_fd("] - flush complete, goodbye\n", 1);
+	}
 }
 
-int	main(int argc, char **argv)
+int	main(void)
 {
-	(void)argc;
-	(void)argv;
-	int	count;
+	int	i;
+	char *loading;
+	char *whitesp;
 
-	count = 0;
-	message = (char *)malloc((MSGSIZE + 1) * sizeof(char));
-	if (!message)
-		return (1);
+	// message = (char *)malloc((MSGBUFF + 1) * sizeof(char));
+	// if (!message)
+	// 	return (message_exit(1, 2, "malloc error, get more ram"));
 	signal(SIGUSR1, handeler);
 	signal(SIGUSR2, handeler);
+	signal(SIGTERM, handeler);
 	ft_putnbr_fd(getpid(), 1);
 	write(1, "\n", 1);
+	loading = "-\\|/" ;
+	i = 0;
 	while (1)
-		sleep(1);
+	{
+		// if (i > 5)
+		// 	i = 0;
+		// write(1, loading + i, 1);
+		// write(1, "\r", 2);
+		usleep(100000);
+		// i++;
+	}
 	return (0);
 }

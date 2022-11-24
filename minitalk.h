@@ -31,7 +31,7 @@
 #  define SIGUSR2 2
 # endif
 
-# define MSGSIZE 32
+# define MSGBUFF 100 * 32
 
 // ◦ ft_printf and any equivalent YOU coded
 // ◦ signal
@@ -52,5 +52,9 @@ void	ft_putstr_fd(char *s, int fd);
 void	ft_putnbr_fd(int n, int fd);
 int		ft_atoi(const char *str);
 char	*ft_strcpy(char *dest, char *src);
+
+//utils
+int	message_exit(int sig, int fd, char *msg);
+void	ft_quick_itoa(unsigned int n);
 
 #endif /*server.h*/
