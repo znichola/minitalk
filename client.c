@@ -22,6 +22,31 @@ void	send_int(unsigned int i, int pid)
 	{
 		if (i & (1U << 31))
 		{
+			printf("1");
+			// printf("sending a 1\n");
+			kill(pid, SIGUSR1);
+		}
+		else
+		{
+			printf("0");
+			// printf("sending a 2\n");
+			kill(pid, SIGUSR2);
+		}
+		i = i << 1U;
+		usleep(BAUD);
+	}
+	// printf("\n");
+}
+
+void	send_char(unsigned int i, int pid)
+{
+	int				count;
+
+	count = 8;
+	while (count--)
+	{
+		if (i & (1U << 7))
+		{
 			// printf("1");
 			// printf("sending a 1\n");
 			kill(pid, SIGUSR1);
@@ -52,8 +77,8 @@ void	send_message(int pid, char *message)
 	// }
 	// printf("\n>\n");
 	while (*message)
-		send_int(*message++, pid);
-	send_int(0, pid);
+		send_char(*message++, pid);
+	send_char(0, pid);
 }
  
 void	handeler(int sig)

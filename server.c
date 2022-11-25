@@ -15,13 +15,25 @@
 
 char	message[BUFFER];
 
-void	send_confirmation(int pid)
+void	print_bits(unsigned char octet)
+{
+	for (int i = 31; i >= 0; i--)
+	{
+		if (octet & (1U << i))
+			write(1, "1", 1);
+		else
+			write(1, "0", 1);
+	}
+}
+
+void	send_confirmation(unsigned int *pid)
 {
 	write(1, "\n", 1);
 	ft_putstr_fd("END acknowledging:", 1);
-	ft_quick_itoa(pid);
+	ft_quick_itoa(*pid);
 	write(1, "\n", 1);
-	kill(pid, SIGUSR1);
+	kill(*pid, SIGUSR1);
+	*pid = 0;
 }
 
 void write_reset(int len, unsigned int *count)
@@ -34,28 +46,70 @@ void write_reset(int len, unsigned int *count)
 	message[0] = '\0';
 }
 
+int	calc_len(int count)
+{
+	if (count <= 32)
+		return (0);
+	count -= 32;
+	return (count / 8 - 1);
+}
+
+int	get_pid(int sig, unsigned int *count, unsigned int *pid)
+{
+	static unsigned int	i = 0;
+
+	if (*count > 32)
+		return(0);
+	*count = *count + 1;
+	i = i << 1U;
+	if (sig == 1)
+		i = i | 1U;
+	ft_quick_itoa(*count);
+	write(1, " : ", 3);
+	ft_quick_itoa(calc_len(*count));
+	write(1, " : ", 3);
+	print_bits(i);
+	write(1, "\n", 1);
+	if (*count == 31)
+		return (0);
+	return (1);
+}
+
+int	get_char(int sig, unsigned int *count, unsigned int *octet)
+{
+	// printf("\nget char");
+	*count = *count + 1;
+	*octet = *octet << 1U;
+	if (sig == 1)
+		*octet = *octet | 1U;
+	// ft_quick_itoa(*count);
+	// write(1, " : ", 3);
+	// ft_quick_itoa(calc_len(*count));
+	// write(1, " : ", 3);
+	// print_bits(*octet);
+	// write(1, "\n", 1);
+	if (calc_len(*count) != 8)
+		return (1);
+	return (0);
+}
+
+
 void	get_byte(int sig)
 {
 	static unsigned int	byte = 0;
 	static unsigned int	count = 0;
 	static unsigned int	pid = 0;
 	
-	count++;
-	byte = byte << 1;
-	if (sig == 1)
-		byte = byte | 1U;
-	if (count % 32)
+	if (get_pid(sig, &count, &pid))
 		return ;
-	if (count == 32)
-		pid = byte;
-	else
-		message[(count / 32 - 2)] = byte;
-	// printf("found byte:%c pid:%d count:%d len:%d\n", byte, pid, count, (count / 32 - 2));
-	if ((count != 32 && (count / 32 - 2) >= BUFFER) || byte == 0)
-		write_reset((count / 32 - 2), &count);
+	if (get_char(sig, &count, &byte))
+		return ;
+	message[(count / 2 - 2)] = byte;
+	if ((count / 2 - 2) % BUFFER == 0 || byte == 0)
+		write_reset((count / 2 - 2), &count);
 	if (byte == 0)
-		send_confirmation(pid);
-	byte = 0;
+		send_confirmation(&pid);
+	// byte = 0;
 }
 
 void handeler(int sig)
@@ -81,14 +135,6 @@ int	main(void)
 	signal(SIGINT, handeler);
 	ft_putnbr_fd(getpid(), 1);
 	write(1, "\n", 1);
-	if (BUFFER == 1024)
-	{
-		ft_putstr_fd("unchanged buffer<", 1);
-		ft_quick_itoa(BUFFER);
-		ft_putstr_fd(">unchanged buffer\n", 1);
-	}
-	else
-		ft_putstr_fd("unchanged buffer", 1);
 	while (1)
 	{
 		pause();
@@ -96,3 +142,7 @@ int	main(void)
 	}
 	return (0);
 }
+
+// 00000000000000000011000010111100
+// 00000000000000000000000001011110
+// 00000000000000000000000010111100

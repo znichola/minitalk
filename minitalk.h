@@ -35,7 +35,7 @@
 # 	define BUFFER 32
 # endif
 # ifndef BAUD
-#  define BAUD 20
+#  define BAUD 150
 # endif
 
 void	ft_putchar_fd(char c, int fd);
