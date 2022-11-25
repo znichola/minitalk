@@ -6,7 +6,7 @@
 #    By: znichola <znichola@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/21 20:15:48 by znichola          #+#    #+#              #
-#    Updated: 2022/11/21 20:15:48 by znichola         ###   ########.fr        #
+#    Updated: 2022/11/25 23:27:11 by znichola         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,4 +50,4 @@ bonus	: all
 
 re		: fclean all
 
-.PHONY : all clean fclean re bonus $(SRV) $(CLT)
+.PHONY : all clean fclean re bonus
