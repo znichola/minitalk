@@ -10,72 +10,54 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "minitalk.h"
 
 void	send_int(unsigned int i, int pid)
 {
-	int				count;
+	int	count;
 
 	count = 32;
 	while (count--)
 	{
 		if (i & (1U << 31))
-		{
-			// printf("1");
-			// printf("sending a 1\n");
 			kill(pid, SIGUSR1);
-		}
 		else
-		{
-			// printf("0");
-			// printf("sending a 2\n");
 			kill(pid, SIGUSR2);
-		}
 		i = i << 1U;
 		usleep(BAUD);
 	}
-	// printf("\n");
 }
 
 void	send_char(unsigned int i, int pid)
 {
-	int				count;
+	int	count;
 
 	count = 8;
 	while (count--)
 	{
 		if (i & (1U << 7))
-		{
-			// printf("1");
-			// printf("sending a 1\n");
 			kill(pid, SIGUSR1);
-		}
 		else
-		{
-			// printf("0");
-			// printf("sending a 2\n");
 			kill(pid, SIGUSR2);
-		}
 		i = i << 1U;
 		usleep(BAUD);
 	}
-	// printf("\n");
 }
 
 void	send_message(int pid, char *message)
 {
-	int client_pid = getpid();
+	int	client_pid;
+
+	client_pid = getpid();
 	send_int(client_pid, pid);
 	ft_putstr_fd("client pid:", 1);
-	ft_quick_itoa(pid);
+	ft_quick_itoa(client_pid);
 	write(1, "\n", 1);
-	printf("client pid:%d\n", client_pid);
 	while (*message)
 		send_char(*message++, pid);
 	send_char(0, pid);
 }
- 
+
 void	handeler(int sig)
 {
 	if (sig == SIGUSR1)

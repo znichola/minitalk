@@ -15,11 +15,11 @@ SRV		=	server
 CLT		=	client
 
 COMOBJ	=	utils.o
-SRVOBJ	=	server.o
+SRVOBJ	=	server.o server_utils.o
 CLTOBJ	=	client.o
-# CFLAGS	=	-Wall -Wextra -Werror
+CFLAGS	=	-Wall -Wextra -Werror
+# CFLAGS	=	-g -fsanitize=address
 RM		=	rm -rf
-CFLAGS	=	-g -fsanitize=address
 
 all		: $(SRV) $(CLT)
 
