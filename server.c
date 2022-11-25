@@ -10,64 +10,70 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "minitalk.h"
 
-# include "minitalk.h"
+char	g_message[BUFFER];
 
-char	message[BUFFER];
-
-void	send_confirmation(int pid)
+void	write_reset(int len, unsigned int *count)
 {
-	write(1, "\n", 1);
-	ft_putstr_fd("END acknowledging:", 1);
-	ft_quick_itoa(pid);
-	write(1, "\n", 1);
-	kill(pid, SIGUSR1);
+	len += 1;
+	write(1, g_message, len);
+	*count = 32;
+	g_message[0] = '\0';
 }
 
-void write_reset(int len, unsigned int *count)
+int	get_octet(int sig, unsigned int count, unsigned int *ret)
 {
-	ft_putstr_fd("\n-writitng-\n", 1);
-	write(1, message, len);
-	write(1, "", 1);
-	if (*count > 32)
-		*count = 32;
-	message[0] = '\0';
+	static unsigned int	octet = 0;
+
+	octet = octet << 1U;
+	if (sig == 1)
+		octet = octet | 1U;
+	if (count % 8 == 0)
+	{
+		*ret = octet;
+		octet = 0;
+		return (0);
+	}
+	return (1);
 }
 
-void	get_byte(int sig)
+void	decoder(int sig, unsigned int *count, unsigned int *pid)
 {
-	static unsigned int	byte = 0;
+	unsigned int	octet;
+
+	if (get_octet(sig, *count, &octet))
+		return ;
+	if (*count <= 32)
+		*pid = (*pid << 8 | octet);
+	else
+	{
+		g_message[calc_len(*count)] = octet;
+		if (octet == 0)
+		{
+			write_reset(calc_len(*count), count);
+			send_confirmation(pid);
+			*count = 0;
+		}
+		else if (calc_len(*count) == BUFFER)
+			write_reset(calc_len(*count), count);
+	}
+}
+
+void	handeler(int sig)
+{
 	static unsigned int	count = 0;
 	static unsigned int	pid = 0;
-	
-	count++;
-	byte = byte << 1;
-	if (sig == 1)
-		byte = byte | 1U;
-	if (count % 32)
-		return ;
-	if (count == 32)
-		pid = byte;
-	else
-		message[(count / 32 - 2)] = byte;
-	// printf("found byte:%c pid:%d count:%d len:%d\n", byte, pid, count, (count / 32 - 2));
-	if ((count != 32 && (count / 32 - 2) >= BUFFER) || byte == 0)
-		write_reset((count / 32 - 2), &count);
-	if (byte == 0)
-		send_confirmation(pid);
-	byte = 0;
-}
 
-void handeler(int sig)
-{
+	count += 1;
 	if (sig == SIGUSR1)
-		get_byte(1);
+		decoder(1, &count, &pid);
 	if (sig == SIGUSR2)
-		get_byte(2);
+		decoder(2, &count, &pid);
 	if (sig == SIGTERM || sig == SIGINT)
 	{
 		ft_putstr_fd("\nTERMINATION\nbuffer_flush{", 1);
-		ft_putstr_fd(message, 1);
+		ft_putstr_fd(g_message, 1);
 		ft_putstr_fd("}flush_complete .. goodbye\n", 1);
 		exit(0);
 	}
@@ -79,20 +85,10 @@ int	main(void)
 	signal(SIGUSR2, handeler);
 	signal(SIGTERM, handeler);
 	signal(SIGINT, handeler);
-	ft_putnbr_fd(getpid(), 1);
+	ft_putstr_fd("Server pid: ", 1);
+	ft_quick_itoa(getpid());
 	write(1, "\n", 1);
-	if (BUFFER == 1024)
-	{
-		ft_putstr_fd("unchanged buffer<", 1);
-		ft_quick_itoa(BUFFER);
-		ft_putstr_fd(">unchanged buffer\n", 1);
-	}
-	else
-		ft_putstr_fd("unchanged buffer", 1);
 	while (1)
-	{
 		pause();
-		// usleep(100000);
-	}
 	return (0);
 }

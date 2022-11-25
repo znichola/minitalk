@@ -10,22 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "minitalk.h"
 
 void	ft_putchar_fd(char c, int fd)
 {
 	write(fd, &c, 1);
-}
-
-size_t	ft_strlen(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
 }
 
 void	ft_putstr_fd(char *s, int fd)
@@ -34,25 +23,10 @@ void	ft_putstr_fd(char *s, int fd)
 
 	if (!*s || fd < 0)
 		return ;
-	i = ft_strlen(s);
+	i = 0;
+	while (s[i])
+		i++;
 	write(fd, s, i);
-}
-
-void	ft_putnbr_fd(int n, int fd)
-{
-	if (n == -2147483648)
-		ft_putstr_fd("-2147483648", fd);
-	else if (n < 0)
-	{
-		ft_putchar_fd('-', fd);
-		ft_putnbr_fd(-n, fd);
-	}
-	else
-	{
-		if (n > 9)
-			ft_putnbr_fd(n / 10, fd);
-		ft_putchar_fd(n % 10 + '0', fd);
-	}
 }
 
 int	ft_atoi(const char *str)
@@ -76,18 +50,6 @@ int	ft_atoi(const char *str)
 	return ((int)n * s);
 }
 
-char	*ft_strcpy(char *dest, char *src)
-{
-	char	*t;
-	
-	t = dest;
-	if (!dest || !src)
-		return (NULL);
-	while (*src)
-		*t++ = *src++;
-	return (dest);
-}
-
 int	message_exit(int sig, int fd, char *msg)
 {
 	while (*msg)
@@ -99,6 +61,7 @@ int	message_exit(int sig, int fd, char *msg)
 void	ft_quick_itoa(unsigned int n)
 {
 	unsigned char	c;
+
 	if (n > 9)
 		ft_quick_itoa(n / 10);
 	c = n % 10 + '0';
