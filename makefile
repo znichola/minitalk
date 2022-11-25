@@ -46,6 +46,8 @@ clean	:
 fclean	: clean
 	$(RM) $(SRV) $(CLT)
 
+bonus	: all
+
 re		: fclean all
 
-.PHONY : all clean fclean re
+.PHONY : all clean fclean re bonus $(SRV) $(CLT)
