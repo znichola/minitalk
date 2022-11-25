@@ -22,13 +22,13 @@ void	send_int(unsigned int i, int pid)
 	{
 		if (i & (1U << 31))
 		{
-			printf("1");
+			// printf("1");
 			// printf("sending a 1\n");
 			kill(pid, SIGUSR1);
 		}
 		else
 		{
-			printf("0");
+			// printf("0");
 			// printf("sending a 2\n");
 			kill(pid, SIGUSR2);
 		}
@@ -67,15 +67,10 @@ void	send_message(int pid, char *message)
 {
 	int client_pid = getpid();
 	send_int(client_pid, pid);
+	ft_putstr_fd("client pid:", 1);
+	ft_quick_itoa(pid);
+	write(1, "\n", 1);
 	printf("client pid:%d\n", client_pid);
-	// printf("<\n");
-	// int i = client_pid;
-	// for (int j = 0; j < 32; j++) 
-	// {
-	// 	printf((i & (1U << 31) ? "1" : "0"));
-	// 	i = i << 1U;
-	// }
-	// printf("\n>\n");
 	while (*message)
 		send_char(*message++, pid);
 	send_char(0, pid);

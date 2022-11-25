@@ -38,11 +38,13 @@ void	send_confirmation(unsigned int *pid)
 
 void write_reset(int len, unsigned int *count)
 {
-	ft_putstr_fd("\n-writitng-\n", 1);
+	len += 1;
+	// write(1, "len:", 5);
+	// ft_quick_itoa(len);
+	// ft_putstr_fd("-writitng-<", 1);
 	write(1, message, len);
-	write(1, "", 1);
-	// if (*count > 32)
-		*count = 32;
+	// write(1, ">\n", 2);
+	*count = 32;
 	message[0] = '\0';
 }
 
@@ -63,10 +65,13 @@ int	get_octet(int sig, unsigned int count, unsigned int *ret)
 		octet = octet | 1U;
 	if (count % 8 == 0)
 	{
-		ft_quick_itoa(count);
-		write(1, " : ", 3);
-		print_bits(octet);
-		write(1, "\n", 1);
+		// ft_quick_itoa(count);
+		// write(1, " : ", 3);
+		// print_bits(octet);
+		// write(1, &octet, 1);
+		// write(1, " : ", 3);
+		// ft_quick_itoa(calc_len(count));
+		// write(1, "\n", 1);
 		*ret = octet;
 		octet = 0;
 		return (0);
@@ -85,18 +90,16 @@ void	decoder(int sig, unsigned int *count, unsigned int *pid)
 	else
 	{
 		message[calc_len(*count)] = octet;
-		// ft_quick_itoa(calc_len(*count));
-		// write(1, "\n", 1);
+		// message[calc_len(*count) + 1] = '\0';
 		if (octet == 0)
 		{
 			write_reset(calc_len(*count), count);
 			send_confirmation(pid);
 			* count = 0;
 		}
-		if (calc_len(*count) == BUFFER)
+		else if (calc_len(*count) == BUFFER)
 			write_reset(calc_len(*count), count);
 	}
-
 }
 
 void handeler(int sig)
@@ -123,16 +126,22 @@ int	main(void)
 	signal(SIGUSR2, handeler);
 	signal(SIGTERM, handeler);
 	signal(SIGINT, handeler);
+	ft_putstr_fd("Server pid: ", 1);
 	ft_putnbr_fd(getpid(), 1);
 	write(1, "\n", 1);
 	while (1)
-	{
 		pause();
-		// usleep(100000);
-	}
 	return (0);
 }
 
-// 0011110001010101
-// 0011110001010101
-// 11100101
+// 01245689acdeghilklnop
+// 01245689acdeghilklnop
+// 0124
+//     5689
+//         acde
+//             f
+//             ghil
+//                 j
+//                   m
+//                 klno
+//                     p

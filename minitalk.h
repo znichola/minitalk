@@ -32,7 +32,7 @@
 # endif
 
 # ifndef BUFFER
-# 	define BUFFER 32
+# 	define BUFFER 10
 # endif
 # ifndef BAUD
 #  define BAUD 150
@@ -45,7 +45,7 @@ int		ft_atoi(const char *str);
 char	*ft_strcpy(char *dest, char *src);
 
 //utils
-int	message_exit(int sig, int fd, char *msg);
+int		message_exit(int sig, int fd, char *msg);
 void	ft_quick_itoa(unsigned int n);
 
 #endif /*server.h*/
