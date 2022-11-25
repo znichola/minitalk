@@ -31,21 +31,12 @@
 #  define SIGUSR2 2
 # endif
 
-# define MSGBUFF 100 * 32
-
-// ◦ ft_printf and any equivalent YOU coded
-// ◦ signal
-// ◦ sigemptyset
-// ◦ sigaddset
-// ◦ sigaction
-// ◦ kill
-// ◦ getpid
-// ◦ malloc
-// ◦ free
-// ◦ pause
-// ◦ sleep
-// ◦ usleep
-// ◦ exit
+# ifndef BUFFER
+# 	define BUFFER 32
+# endif
+# ifndef BAUD
+#  define BAUD 20
+# endif
 
 void	ft_putchar_fd(char c, int fd);
 void	ft_putstr_fd(char *s, int fd);

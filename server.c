@@ -13,20 +13,25 @@
 
 # include "minitalk.h"
 
-char	message[MSGBUFF];
+char	message[BUFFER];
 
 void	send_confirmation(int pid)
 {
-	write(1, "\nSTOP. sending confirmation:%d\n", 32);
+	write(1, "\n", 1);
+	ft_putstr_fd("END acknowledging:", 1);
 	ft_quick_itoa(pid);
-	printf("\npid:%d\n", pid);
+	write(1, "\n", 1);
 	kill(pid, SIGUSR1);
 }
 
 void write_reset(int len, unsigned int *count)
 {
+	ft_putstr_fd("\n-writitng-\n", 1);
 	write(1, message, len);
-	count = 0;
+	write(1, "", 1);
+	if (*count > 32)
+		*count = 32;
+	message[0] = '\0';
 }
 
 void	get_byte(int sig)
@@ -45,7 +50,8 @@ void	get_byte(int sig)
 		pid = byte;
 	else
 		message[(count / 32 - 2)] = byte;
-	if ((count / 32 - 2) >= MSGBUFF || byte == 0)
+	// printf("found byte:%c pid:%d count:%d len:%d\n", byte, pid, count, (count / 32 - 2));
+	if ((count != 32 && (count / 32 - 2) >= BUFFER) || byte == 0)
 		write_reset((count / 32 - 2), &count);
 	if (byte == 0)
 		send_confirmation(pid);
@@ -58,38 +64,35 @@ void handeler(int sig)
 		get_byte(1);
 	if (sig == SIGUSR2)
 		get_byte(2);
-	if (sig == SIGTERM)
+	if (sig == SIGTERM || sig == SIGINT)
 	{
-		ft_putstr_fd("TERMINATING - buffer flush[\n", 1);
+		ft_putstr_fd("\nTERMINATION\nbuffer_flush{", 1);
 		ft_putstr_fd(message, 1);
-		ft_putstr_fd("] - flush complete, goodbye\n", 1);
+		ft_putstr_fd("}flush_complete .. goodbye\n", 1);
+		exit(0);
 	}
 }
 
 int	main(void)
 {
-	int	i;
-	char *loading;
-	char *whitesp;
-
-	// message = (char *)malloc((MSGBUFF + 1) * sizeof(char));
-	// if (!message)
-	// 	return (message_exit(1, 2, "malloc error, get more ram"));
 	signal(SIGUSR1, handeler);
 	signal(SIGUSR2, handeler);
 	signal(SIGTERM, handeler);
+	signal(SIGINT, handeler);
 	ft_putnbr_fd(getpid(), 1);
 	write(1, "\n", 1);
-	loading = "-\\|/" ;
-	i = 0;
+	if (BUFFER == 1024)
+	{
+		ft_putstr_fd("unchanged buffer<", 1);
+		ft_quick_itoa(BUFFER);
+		ft_putstr_fd(">unchanged buffer\n", 1);
+	}
+	else
+		ft_putstr_fd("unchanged buffer", 1);
 	while (1)
 	{
-		// if (i > 5)
-		// 	i = 0;
-		// write(1, loading + i, 1);
-		// write(1, "\r", 2);
-		usleep(100000);
-		// i++;
+		pause();
+		// usleep(100000);
 	}
 	return (0);
 }

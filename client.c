@@ -33,7 +33,7 @@ void	send_int(unsigned int i, int pid)
 			kill(pid, SIGUSR2);
 		}
 		i = i << 1U;
-		usleep(20);
+		usleep(BAUD);
 	}
 	// printf("\n");
 }
@@ -58,17 +58,18 @@ void	send_message(int pid, char *message)
  
 void	handeler(int sig)
 {
-	write(1, "confirmation received", 22);
+	if (sig == SIGUSR1)
+		ft_putstr_fd("confirmation received\n", 1);
 	exit(0);
 }
 
 int	main(int argc, char **argv)
 {
 	if (argc != 3)
-		return (0);
+		return (1);
 	signal(SIGUSR1, handeler);
 	send_message(ft_atoi(argv[1]), argv[2]);
 	sleep(2);
-	write(1, "no confirmation :(", 19);
-	return (0);
+	ft_putstr_fd("no confirmation :(\n", 1);
+	return (1);
 }

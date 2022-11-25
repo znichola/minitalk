@@ -11,29 +11,41 @@
 # **************************************************************************** #
 
 
-SRVNM = server
-CLTNM = client
+SRV		=	server
+CLT		=	client
 
-COMOBJ = utils.o
-SRVOBJ = server.o
-CLTOBJ = client.o
-# CFLAGS = -Wall -Werror -Wextra
-CFLAGS = -g -fsanitize=address
+COMOBJ	=	utils.o
+SRVOBJ	=	server.o
+CLTOBJ	=	client.o
+# CFLAGS	=	-Wall -Wextra -Werror
+RM		=	rm -rf
+CFLAGS	=	-g -fsanitize=address
 
-all : $(SRVNM) $(CLTNM)
+all		: $(SRV) $(CLT)
 
-$(SRVNM) : $(SRVOBJ) $(COMOBJ)
+# BUFFER and BAUD can't be modified this way, 
+# the object files are made with the preset values anyway,
+# would need to add the same check to their creation. 
+$(SRV)	: $(SRVOBJ) $(COMOBJ)
+ifdef BUFFER
+	$(CC) -D BUFFER=$(BUFFER) -o $(@) $(CFLAGS) $(SRVOBJ) $(COMOBJ) -I.
+else
 	$(CC) -o $(@) $(CFLAGS) $(SRVOBJ) $(COMOBJ) -I.
+endif
 
-$(CLTNM) : $(CLTOBJ) $(COMOBJ)
+$(CLT)	: $(CLTOBJ) $(COMOBJ)
+ifdef BAUD
+	$(CC) -o $(@) $(CFLAGS) $(CLTOBJ) $(COMOBJ) -I. -D BAUD=$(BAUD)
+else
 	$(CC) -o $(@) $(CFLAGS) $(CLTOBJ) $(COMOBJ) -I.
+endif
 
-clean :
-	$(RM) $(SRVOBJ) $(CLTOBJ)
+clean	:
+	$(RM) $(SRVOBJ) $(CLTOBJ) $(COMOBJ)
 
-fclean : clean
-	$(RM) $(SRVNM) $(CLTOBJ)
+fclean	: clean
+	$(RM) $(SRV) $(CLT)
 
-re : fclean all
+re		: fclean all
 
 .PHONY : all clean fclean re
