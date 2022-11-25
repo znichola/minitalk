@@ -17,7 +17,7 @@ char	message[BUFFER];
 
 void	print_bits(unsigned char octet)
 {
-	for (int i = 31; i >= 0; i--)
+	for (int i = 7; i >= 0; i--)
 	{
 		if (octet & (1U << i))
 			write(1, "1", 1);
@@ -41,7 +41,7 @@ void write_reset(int len, unsigned int *count)
 	ft_putstr_fd("\n-writitng-\n", 1);
 	write(1, message, len);
 	write(1, "", 1);
-	if (*count > 32)
+	// if (*count > 32)
 		*count = 32;
 	message[0] = '\0';
 }
@@ -50,74 +50,64 @@ int	calc_len(int count)
 {
 	if (count <= 32)
 		return (0);
-	count -= 32;
+	count -= 31;
 	return (count / 8 - 1);
 }
 
-int	get_pid(int sig, unsigned int *count, unsigned int *pid)
+int	get_octet(int sig, unsigned int count, unsigned int *ret)
 {
-	static unsigned int	i = 0;
+	static unsigned int	octet = 0;
 
-	if (*count > 32)
-		return(0);
-	*count = *count + 1;
-	i = i << 1U;
+	octet = octet << 1U;
 	if (sig == 1)
-		i = i | 1U;
-	ft_quick_itoa(*count);
-	write(1, " : ", 3);
-	ft_quick_itoa(calc_len(*count));
-	write(1, " : ", 3);
-	print_bits(i);
-	write(1, "\n", 1);
-	if (*count == 31)
+		octet = octet | 1U;
+	if (count % 8 == 0)
+	{
+		ft_quick_itoa(count);
+		write(1, " : ", 3);
+		print_bits(octet);
+		write(1, "\n", 1);
+		*ret = octet;
+		octet = 0;
 		return (0);
+	}
 	return (1);
 }
 
-int	get_char(int sig, unsigned int *count, unsigned int *octet)
+void	decoder(int sig, unsigned int *count, unsigned int *pid)
 {
-	// printf("\nget char");
-	*count = *count + 1;
-	*octet = *octet << 1U;
-	if (sig == 1)
-		*octet = *octet | 1U;
-	// ft_quick_itoa(*count);
-	// write(1, " : ", 3);
-	// ft_quick_itoa(calc_len(*count));
-	// write(1, " : ", 3);
-	// print_bits(*octet);
-	// write(1, "\n", 1);
-	if (calc_len(*count) != 8)
-		return (1);
-	return (0);
-}
+	unsigned int	octet;
 
+	if (get_octet(sig, *count, &octet))
+		return ;
+	if (*count <= 32)
+		*pid = (*pid << 8 | octet);
+	else
+	{
+		message[calc_len(*count)] = octet;
+		// ft_quick_itoa(calc_len(*count));
+		// write(1, "\n", 1);
+		if (octet == 0)
+		{
+			write_reset(calc_len(*count), count);
+			send_confirmation(pid);
+			* count = 0;
+		}
+		if (calc_len(*count) == BUFFER)
+			write_reset(calc_len(*count), count);
+	}
 
-void	get_byte(int sig)
-{
-	static unsigned int	byte = 0;
-	static unsigned int	count = 0;
-	static unsigned int	pid = 0;
-	
-	if (get_pid(sig, &count, &pid))
-		return ;
-	if (get_char(sig, &count, &byte))
-		return ;
-	message[(count / 2 - 2)] = byte;
-	if ((count / 2 - 2) % BUFFER == 0 || byte == 0)
-		write_reset((count / 2 - 2), &count);
-	if (byte == 0)
-		send_confirmation(&pid);
-	// byte = 0;
 }
 
 void handeler(int sig)
 {
+	static unsigned int	count = 0;
+	static unsigned int	pid = 0;
+	count += 1;
 	if (sig == SIGUSR1)
-		get_byte(1);
+		decoder(1, &count, &pid);
 	if (sig == SIGUSR2)
-		get_byte(2);
+		decoder(2, &count, &pid);
 	if (sig == SIGTERM || sig == SIGINT)
 	{
 		ft_putstr_fd("\nTERMINATION\nbuffer_flush{", 1);
@@ -143,6 +133,6 @@ int	main(void)
 	return (0);
 }
 
-// 00000000000000000011000010111100
-// 00000000000000000000000001011110
-// 00000000000000000000000010111100
+// 0011110001010101
+// 0011110001010101
+// 11100101
